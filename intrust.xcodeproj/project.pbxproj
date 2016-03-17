@@ -21,6 +21,8 @@
 		61AF1C0A1C51EA00007FB30E /* ExSlideMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AF1C091C51EA00007FB30E /* ExSlideMenuController.swift */; };
 		61AF1C0C1C51EB26007FB30E /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AF1C0B1C51EB26007FB30E /* UIApplication.swift */; };
 		61AF1C0E1C51EFA7007FB30E /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61AF1C0D1C51EFA7007FB30E /* HomeViewController.swift */; };
+		7F8576F61C98EA2F00380F62 /* CommandModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F8576F51C98EA2F00380F62 /* CommandModel.swift */; };
+		7FA3DE501C9804AF00AA18C7 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FA3DE4F1C9804AF00AA18C7 /* Model.swift */; };
 		B7DCBBABE76FF9233E4C00D3 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02164E730E6FE9342C34FA69 /* Pods.framework */; };
 /* End PBXBuildFile section */
 
@@ -64,7 +66,10 @@
 		61AF1C091C51EA00007FB30E /* ExSlideMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExSlideMenuController.swift; sourceTree = "<group>"; };
 		61AF1C0B1C51EB26007FB30E /* UIApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		61AF1C0D1C51EFA7007FB30E /* HomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		7F8576F51C98EA2F00380F62 /* CommandModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommandModel.swift; sourceTree = "<group>"; };
+		7FA3DE4F1C9804AF00AA18C7 /* Model.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		B66D2BDD8E3B79ED27010262 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		E1812EB78D9F4C0B6D851638 /* Pods_intrust.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_intrust.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +136,8 @@
 				61AF1C011C51D259007FB30E /* MainViewController.swift */,
 				61AF1C031C51D27F007FB30E /* LeftViewController.swift */,
 				61AF1C0D1C51EFA7007FB30E /* HomeViewController.swift */,
+				7FA3DE4F1C9804AF00AA18C7 /* Model.swift */,
+				7F8576F51C98EA2F00380F62 /* CommandModel.swift */,
 			);
 			path = intrust;
 			sourceTree = "<group>";
@@ -157,6 +164,7 @@
 			isa = PBXGroup;
 			children = (
 				02164E730E6FE9342C34FA69 /* Pods.framework */,
+				E1812EB78D9F4C0B6D851638 /* Pods_intrust.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -181,8 +189,8 @@
 				61AF1BCC1C51C863007FB30E /* Sources */,
 				61AF1BCD1C51C863007FB30E /* Frameworks */,
 				61AF1BCE1C51C863007FB30E /* Resources */,
-				BD0EE1316B125B94B3959A0A /* Embed Pods Frameworks */,
 				5155C2BB23A7A29F73E7B43F /* Copy Pods Resources */,
+				43F66EF1EE707A0215E3D721 /* Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -300,6 +308,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		43F66EF1EE707A0215E3D721 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		5155C2BB23A7A29F73E7B43F /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -330,21 +353,6 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		BD0EE1316B125B94B3959A0A /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -357,9 +365,11 @@
 				61AF1C021C51D259007FB30E /* MainViewController.swift in Sources */,
 				61AF1C0A1C51EA00007FB30E /* ExSlideMenuController.swift in Sources */,
 				61AF1C041C51D27F007FB30E /* LeftViewController.swift in Sources */,
+				7FA3DE501C9804AF00AA18C7 /* Model.swift in Sources */,
 				61AF1C0E1C51EFA7007FB30E /* HomeViewController.swift in Sources */,
 				61AF1BD61C51C863007FB30E /* ViewController.swift in Sources */,
 				61AF1BD41C51C863007FB30E /* AppDelegate.swift in Sources */,
+				7F8576F61C98EA2F00380F62 /* CommandModel.swift in Sources */,
 				61AF1C061C51E9BB007FB30E /* UIColor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

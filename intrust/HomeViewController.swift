@@ -25,11 +25,11 @@ class HomeViewController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.addLeftBarButtonWithImage(UIImage(named: "hoge")!)
-        self.slideMenuController()?.removeLeftGestures()
-        self.slideMenuController()?.removeRightGestures()
-        self.slideMenuController()?.addLeftGestures()
-        self.slideMenuController()?.addRightGestures()
+//        self.addLeftBarButtonWithImage(UIImage(named: "home_head_user")!)
+//        self.slideMenuController()?.removeLeftGestures()
+//        self.slideMenuController()?.removeRightGestures()
+//        self.slideMenuController()?.addLeftGestures()
+//        self.slideMenuController()?.addRightGestures()
     }
     
     /*

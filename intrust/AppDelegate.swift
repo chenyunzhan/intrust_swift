@@ -7,38 +7,106 @@
 //
 
 import UIKit
+import Alamofire
+import SwiftyJSON
+import FontAwesome_swift
 
 
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    
+    
+    static let baseURLString = "http://www.enfo.com.cn:38080"
+
 
     var window: UIWindow?
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
-        let mainViewController = storyboard.instantiateViewControllerWithIdentifier("MainViewController") as! MainViewController
-        let leftViewController = storyboard.instantiateViewControllerWithIdentifier("LeftViewController") as! LeftViewController
         
-        let nvc: UINavigationController = UINavigationController(rootViewController: mainViewController)
         
-        UINavigationBar.appearance().tintColor = UIColor(hex: "689F38")
         
-        UINavigationBar.appearance().setBackgroundImage(UIImage(named: "top_nav")!, forBarMetrics: .Default);
+        
+        
+        
+        Alamofire.request(.GET, AppDelegate.baseURLString + "/x/mobsrv/login", parameters: ["username": "liuhao", "password":"000000"])
+            .responseJSON { response in
+                print(response.request)
+                if let JSON = response.result.value {
+                    print("JSON: \(JSON)")
+                }
+                
+                
+                
+                Alamofire.request(.GET, AppDelegate.baseURLString + "/x/mobsrv/proxys", parameters: nil)
+                    .responseJSON { response in
+                        
 
-//        [[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"top_nav"] forBarMetrics:UIBarMetricsDefault];
-        
-        leftViewController.mainViewController = nvc
-        
-        let slideMenuController = ExSlideMenuController(mainViewController: nvc, leftMenuViewController: leftViewController)
-        slideMenuController.automaticallyAdjustsScrollViewInsets = true
+                        if response.result.isSuccess {
+                            let json = JSON(response.result.value!).arrayValue
+                            let firstSystemDic = json[0].dictionaryObject
+                            
+                            
+                            
+                            Alamofire.request(.GET, AppDelegate.baseURLString + "/x/mobsrv/tabbar", parameters: ["proxy": firstSystemDic!["code"]!])
+                                .responseJSON { response in
+                                    print(response.request)
+                                    var result = [CommandModel]()
+                                    var viewControllers = [ViewController]()
+                                    let json = JSON(response.result.value!["aaData"]!!).arrayValue
+                                    for item in json {
+                                        let command = CommandModel(fromDictionary: item.dictionaryObject!)
+                                        let imageStr = command.icon.stringByReplacingOccurrencesOfString("icon", withString: "fa")
+                                        let viewController = ViewController()
+                                        viewController.command = command
+                                        viewController.systemDic = firstSystemDic
+                                        let image = UIImage.fontAwesomeIconWithName(FontAwesome.fromCode(imageStr)!, textColor: UIColor.blackColor(), size: CGSizeMake(30, 30))
 
-        self.window?.backgroundColor = UIColor(red: 236.0, green: 238.0, blue: 241.0, alpha: 1.0)
-        self.window?.rootViewController = slideMenuController
-        self.window?.makeKeyAndVisible()
+                                        viewController.tabBarItem = UITabBarItem(title: command.title, image: image, tag: 0)
+                                        result.append(command)
+                                        viewControllers.append(viewController)
+                                    }
+                                    
+                                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                                    
+                                    let mainViewController = storyboard.instantiateViewControllerWithIdentifier("MainViewController") as! MainViewController
+                                    let leftViewController = storyboard.instantiateViewControllerWithIdentifier("LeftViewController") as! LeftViewController
+                                    
+                                    mainViewController.viewControllers = viewControllers;
+                                    
+                                    let nvc: UINavigationController = UINavigationController(rootViewController: mainViewController)
+                                    
+                                    UINavigationBar.appearance().tintColor = UIColor(hex: "689F38")
+                                    
+                                    UINavigationBar.appearance().setBackgroundImage(UIImage(named: "top_nav")!, forBarMetrics: .Default);
+                                    
+                                    //        [[UINavigationBar appearance] setBackgroundImage:[UIImage imageNamed:@"top_nav"] forBarMetrics:UIBarMetricsDefault];
+                                    
+                                    leftViewController.mainViewController = nvc
+                                    
+                                    let slideMenuController = ExSlideMenuController(mainViewController: nvc, leftMenuViewController: leftViewController)
+                                    slideMenuController.automaticallyAdjustsScrollViewInsets = true
+                                    
+                                    self.window?.backgroundColor = UIColor(red: 236.0, green: 238.0, blue: 241.0, alpha: 1.0)
+                                    self.window?.rootViewController = slideMenuController
+                                    self.window?.makeKeyAndVisible()
+                            }
+                        }else{
+ 
+                        }
+                        
+                        
+
+                }
+        }
+        
+        
+        
+
         
         return true
     }

@@ -25,7 +25,7 @@ class MainViewController: UITabBarController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.addLeftBarButtonWithImage(UIImage(named: "hoge")!)
+        self.addLeftBarButtonWithImage(UIImage(named: "home_head_user")!)
         self.slideMenuController()?.removeLeftGestures()
         self.slideMenuController()?.removeRightGestures()
         self.slideMenuController()?.addLeftGestures()
