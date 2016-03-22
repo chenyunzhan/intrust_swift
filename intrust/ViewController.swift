@@ -10,16 +10,24 @@ import UIKit
 import SnapKit
 import Alamofire
 import SwiftyJSON
+import FontAwesome_swift
+import MGSwipeTableCell
 
 
-class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource{
+
+class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDataSource, UITableViewDelegate{
     
     var command: CommandModel!
     var systemDic: NSDictionary!
     var collectionData: NSMutableArray!
+    var tableData: NSMutableArray!
+    var rowCmdArray: NSMutableArray!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.view.backgroundColor = UIColor(hex: "f2f2f2")
+
         
         if (command.id == "T_HOME") {
 
@@ -96,6 +104,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                     
                     
                     let userDic = JSON(response.result.value!).dictionaryObject
+                    let leftVC = self.slideMenuController()?.leftViewController as! LeftViewController
+                    leftVC.userDic = userDic
+                    leftVC.viewDidLoad()
                     let photoData = NSData(base64EncodedString: userDic!["photo"] as! String, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)
                     photoButton.setBackgroundImage(UIImage(data: photoData!), forState: UIControlState.Normal)
                     nameButton.setTitle(userDic!["full_name"] as? String, forState: UIControlState.Normal)
@@ -109,63 +120,109 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 .responseJSON { response in
                     print(response.request)
                     let json = JSON(response.result.value!["aaData"]!!).arrayValue
+                    
+                    
+                    let collectionData = NSMutableArray()
       
-                    for index in 0...json.count-1 {
-                        var collectItem = json[index]
-                        var collectItemDic = collectItem.dictionaryObject
-                        let rowItems = JSON(collectItemDic!["items"]!).arrayValue
-
-
-                        
-                        
-                        let collectionData = NSMutableArray()
-
-                        
-                        for rowItem in rowItems {
-                            
+                    if json.count > 0  {
+                        for index in 0...json.count-1 {
+                            var collectItem = json[index]
+                            var collectItemDic = collectItem.dictionaryObject
+                            let rowItems = JSON(collectItemDic!["items"]!).arrayValue
                             let rowCollectionData = NSMutableArray()
-                            
-                            for colItem in rowItem.arrayValue {
-                                let command = CommandModel(fromDictionary: colItem.dictionaryObject!)
-                                
-                                rowCollectionData .addObject(command)
-                                print(colItem);
-
-
+                            for rowItem in rowItems {
+                                let colCollectionData = NSMutableArray()
+                                for colItem in rowItem.arrayValue {
+                                    let command = CommandModel(fromDictionary: colItem.dictionaryObject!)
+                                    
+                                    colCollectionData.addObject(command)
+                                    
+                                }
+                                rowCollectionData.addObject(colCollectionData)
                             }
-                            
                             collectionData.addObject(rowCollectionData)
                         }
-                        
-                        
-                        self.collectionData = collectionData
-
                     }
                     
+                    self.collectionData = collectionData
+
                     
-                    for index in 0...self.collectionData.count-1 {
-                        let collectView = UICollectionView(frame: CGRectZero, collectionViewLayout: UICollectionViewFlowLayout.init());
-                        collectView.tag = index
-                        collectView.delegate = self
-                        collectView.dataSource = self
-                        collectView.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "CommandCell")
-                        
-                        self.view.addSubview(collectView)
-                        
-                        
-                        collectView.snp_makeConstraints { (make) -> Void in
-                            make.top.equalTo(homeBackImage)
-                            make.width.equalTo(homeBackImage)
-                            make.height.equalTo(self.collectionData[index].count)
+                    var topConstraint: Constraint? = nil
+                    var offset = 0
+
+                    
+                    if self.collectionData.count > 0 {
+                        for index in 0...self.collectionData.count-1 {
+                            let collectView = UICollectionView(frame: CGRectZero, collectionViewLayout: UICollectionViewFlowLayout.init());
+                            collectView.tag = index
+                            collectView.delegate = self
+                            collectView.dataSource = self
+                            collectView.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: "CommandCell")
+                            collectView.backgroundColor = UIColor.clearColor()
+                            self.view.addSubview(collectView)
+                            
+                            collectView.snp_makeConstraints { (make) -> Void in
+                                topConstraint = make.top.equalTo(homeBackImage.snp_bottom).constraint
+                                make.width.equalTo(homeBackImage)
+                                
+                                make.height.equalTo(self.collectionData[index].count*44)
+                            }
+                            topConstraint?.updateOffset(offset)
+                            offset += self.collectionData[index].count*44+8
+                            
+                            self.view.layoutIfNeeded()
                         }
                     }
                     
+                    
 
-                    if let JSON = response.result.value {
-                        print("JSON: \(JSON)")
-                    }
+//                    if let JSON = response.result.value {
+//                        print("JSON: \(JSON)")
+//                    }
             }
 
+        } else if (command.id == "T_CNFG") {
+
+        } else {
+            if (command.id == "T_BOOK") {
+                command.url = "/x/mobsrv/user/list"
+            }
+            
+            
+            Alamofire.request(.GET, AppDelegate.baseURLString + command.url, parameters: nil)
+                .responseJSON { response in
+                    
+                print(response.request)
+                
+                let cellDicArray = JSON(response.result.value!["aaData"]!!).arrayValue
+                let cellModel = JSON(response.result.value!["colnames"]!!).dictionaryObject
+                    
+                let tableData = NSMutableArray()
+                for cellDic in cellDicArray {
+                    let command = CellModel(fromDictionary: cellDic.dictionaryObject!, cellDic: cellModel!)
+                    tableData .addObject(command)
+                }
+                   
+                let rowCmdDicArray = JSON(response.result.value!["rowCmd"]!!).arrayValue
+                let rowCmdArray = NSMutableArray()
+                for rowCmdDic in rowCmdDicArray {
+                    let command = CommandModel(fromDictionary: rowCmdDic.dictionaryObject!)
+                    rowCmdArray .addObject(command)
+                }
+                    
+                self.tableData = tableData
+                self.rowCmdArray = rowCmdArray
+                    
+                    
+                let tableView = UITableView()
+                tableView.delegate = self
+                tableView.dataSource = self
+                self.view .addSubview(tableView)
+                    
+                tableView.snp_makeConstraints { (make) -> Void in
+                    make.edges.equalTo(self.view).inset(UIEdgeInsetsMake(4, 4, 4, 4))
+                }
+            }
         }
         
         
@@ -177,24 +234,126 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         // Dispose of any resources that can be recreated.
     }
     
-    
+    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+        return self.collectionData[collectionView.tag].count
+    }
+
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.collectionData[section].count;
+        return self.collectionData[collectionView.tag][section].count
     }
+    
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let identify:String = "CommandCell"
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(
             identify, forIndexPath: indexPath) as UICollectionViewCell
+        
+
         let commandButton = UIButton()
-        
-        
-        let commandModel = self.collectionData[indexPath.section][indexPath.row]
+        var commandModel: CommandModel!
+        commandModel = self.collectionData[collectionView.tag][indexPath.section][indexPath.row] as! CommandModel
         commandButton.setTitle(commandModel.title, forState: UIControlState.Normal)
-        cell.addSubview(commandButton)
-        return cell
+        commandButton.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        commandButton.userInteractionEnabled = false
         
+        
+        if commandModel.icon == "icon-eye-open" {
+            commandModel.icon = "icon-eye"
+        } else if commandModel.icon == "icon-comment-alt" {
+            commandModel.icon = "icon-comment"
+        }
+        
+        let imageStr = commandModel.icon!.stringByReplacingOccurrencesOfString("icon", withString: "fa")
+        
+        
+        let image = UIImage.fontAwesomeIconWithName(FontAwesome.fromCode(imageStr)!, textColor: Util.colorWithHexString(commandModel.iconclor), size: CGSizeMake(30, 30))
+        commandButton.setImage(image, forState: UIControlState.Normal)
+        
+        
+        cell.addSubview(commandButton)
+        
+        
+        commandButton.snp_makeConstraints { (make) -> Void in
+            make.edges.equalTo(cell).inset(UIEdgeInsetsMake(4, 4, 4, 4))
+        }
+        cell.backgroundColor = UIColor.whiteColor()
+        
+        return cell
+
+    }
+    
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+        
+        return CGSizeMake((collectionView.frame.width)/CGFloat(self.collectionData[collectionView.tag][indexPath.section].count)-1, 44-1)
+        
+
+    }
+    
+    
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAtIndex section: Int) -> CGFloat {
+        return 0
+    }
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAtIndex section: Int) -> CGFloat {
+        return 0
+    }
+
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets{
+        return UIEdgeInsetsMake(0.5, 0.5, 0.5, 0.5)
+    }
+    
+    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+        let command = self.collectionData[collectionView.tag][indexPath.section][indexPath.row] as! CommandModel
+        let viewController = ViewController()
+        viewController.command = command
+        self.navigationController!.pushViewController(viewController, animated: true)
+    }
+
+    
+    
+    func tableView(tableView:UITableView, numberOfRowsInSection section:Int) -> Int{
+        return self.tableData.count
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell
+    {
+
+        let reuseIdentifier = "programmaticCell"
+        var cell = tableView.dequeueReusableCellWithIdentifier(reuseIdentifier) as! MGSwipeTableCell!
+        if cell == nil
+        {
+            cell = MGSwipeTableCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: reuseIdentifier)
+        }
+        
+        
+        let cellMode = self.tableData[indexPath.row] as! CellModel
+        cell.textLabel?.text = cellMode.title
+        cell.detailTextLabel!.text = "Detail text"
+
+        if(self.rowCmdArray.count > 1) {
+            let rightButtons = NSMutableArray()
+            for index in 1...(self.rowCmdArray.count-1) {
+                let command = self.rowCmdArray[index]
+                
+                var buttonColor: UIColor
+                switch index {
+                case 1:
+                    buttonColor = UIColor(hex: "ff3b30")
+                case 2:
+                    buttonColor = UIColor(hex: "ff9c00")
+                case 3:
+                    buttonColor = UIColor(hex: "b2b2b2")
+                default:
+                    buttonColor = UIColor(hex: "999999")
+                }
+                let button = MGSwipeButton(title: command.title, backgroundColor: buttonColor)
+                rightButtons .addObject(button)
+            }
+            cell.rightButtons = rightButtons as [AnyObject]
+            cell.rightSwipeSettings.transition = MGSwipeTransition.Rotate3D
+        }
+        
+        return cell
     }
 
 

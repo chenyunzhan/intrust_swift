@@ -50,6 +50,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                             let json = JSON(response.result.value!).arrayValue
                             let firstSystemDic = json[0].dictionaryObject
                             
+                            let systemArray = NSMutableArray()
+                            for item in json {
+                                let system = item.dictionaryObject
+                                systemArray .addObject(system!)
+                            }
                             
                             
                             Alamofire.request(.GET, AppDelegate.baseURLString + "/x/mobsrv/tabbar", parameters: ["proxy": firstSystemDic!["code"]!])
@@ -60,7 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                     let json = JSON(response.result.value!["aaData"]!!).arrayValue
                                     for item in json {
                                         let command = CommandModel(fromDictionary: item.dictionaryObject!)
-                                        let imageStr = command.icon.stringByReplacingOccurrencesOfString("icon", withString: "fa")
+                                        let imageStr = command.icon!.stringByReplacingOccurrencesOfString("icon", withString: "fa")
                                         let viewController = ViewController()
                                         viewController.command = command
                                         viewController.systemDic = firstSystemDic
@@ -76,11 +81,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                     let mainViewController = storyboard.instantiateViewControllerWithIdentifier("MainViewController") as! MainViewController
                                     let leftViewController = storyboard.instantiateViewControllerWithIdentifier("LeftViewController") as! LeftViewController
                                     
+                                    leftViewController.tableData = systemArray
+                                    
                                     mainViewController.viewControllers = viewControllers;
                                     
                                     let nvc: UINavigationController = UINavigationController(rootViewController: mainViewController)
                                     
-                                    UINavigationBar.appearance().tintColor = UIColor(hex: "689F38")
+                                    UINavigationBar.appearance().tintColor = UIColor.whiteColor()
                                     
                                     UINavigationBar.appearance().setBackgroundImage(UIImage(named: "top_nav")!, forBarMetrics: .Default);
                                     
